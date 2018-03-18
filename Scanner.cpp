@@ -39,9 +39,18 @@ void Scanner::GetOptions()
 		}
 	}
 }
-void* Scanner::_GetCurrentValue(std::size_t index, std::size_t size, int* info)
+void* Scanner::_GetCurrentValue(std::size_t index, std::size_t size, int* info, SANE_Status* status)
 {
 	void* value = malloc(size);
-	sane_control_option(this->handle, index, SANE_ACTION_GET_VALUE, value, info);
+	SANE_Status s = sane_control_option(this->handle, index, SANE_ACTION_GET_VALUE, value, info);
+	if (status != nullptr)
+	{
+		*status = s;
+	}
 	return value;
+}
+
+SANE_Status Scanner::_SetCurrentValue(std::size_t index, void* value, std::size_t size, int* info)
+{
+	return sane_control_option(this->handle, index, SANE_ACTION_SET_VALUE, value, info);
 }

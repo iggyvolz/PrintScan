@@ -10,6 +10,7 @@ class SettingsScreen:public MenuScreen
 		~SettingsScreen();
 		Scanner* scanner;
 		void OnPress() override;
+		void UpdateOptions();
 	private:
 		typedef void(SettingsScreen::*memfunc)();
 		// Map of on-screen options to the function that should be run when they are pressed (or nullptr when no function should be called

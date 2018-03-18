@@ -11,53 +11,57 @@ class Scanner
         friend class ScannerEnvironment;
 		std::vector<const SANE_Option_Descriptor*> Options;
 		void GetOptions();
+
 		template<typename T>
 		// Gets the current value of an option
-		T GetCurrentValue(std::size_t index);
+		T GetCurrentValue(std::size_t index, std::size_t size=sizeof(T), int* info=nullptr, SANE_Status* status = nullptr);
 
 		template<typename T>
-		// Gets the current value of an option, and returns info about it
-		T GetCurrentValue(std::size_t index, std::size_t size);
-
-
-		template<typename T>
-		// Gets the current value of an option of a given size
-		T GetCurrentValue(std::size_t index, int* info);
+		// Gets the current value of an option
+		T* GetCurrentValuePointer(std::size_t index, std::size_t size=sizeof(T), int* info=nullptr, SANE_Status* status = nullptr);
 
 		template<typename T>
-		// Gets the current value of an option of a given size, and returns info about it
-		T GetCurrentValue(std::size_t index, std::size_t size, int* info);
+		// Sets the current value of an option
+		SANE_Status SetCurrentValue(std::size_t index, T value, std::size_t size = sizeof(T), int* info = nullptr);
+
+		template<typename T>
+		// Sets the current value of an option
+		SANE_Status SetCurrentValuePointer(std::size_t index, T* value, std::size_t size = sizeof(T), int* info = nullptr);
     private:
         Scanner(SANE_Device);
         SANE_Handle handle;
         SANE_Device device;
-		void* _GetCurrentValue(std::size_t index, std::size_t size, int* info);
+		void* _GetCurrentValue(std::size_t index, std::size_t size, int* info, SANE_Status* status);
+		SANE_Status _SetCurrentValue(std::size_t index, void* value, std::size_t size, int* info);
 };
+template<typename T>
+T Scanner::GetCurrentValue(std::size_t index, std::size_t size, int* info, SANE_Status* status)
+{
+	T* ptr = GetCurrentValuePointer<T>(index, size, info, status);
+	T value = *ptr;
+	free(ptr);
+	return value;
+}
 
-
 template<typename T>
-// Gets the current value of an option
-T Scanner::GetCurrentValue(std::size_t index)
+T* Scanner::GetCurrentValuePointer(std::size_t index, std::size_t size, int* info, SANE_Status* status)
 {
-	return Scanner::GetCurrentValue<T>(index, (int*)nullptr);
-}
-template<typename T>
-// Gets the current value of an option, and returns info about it
-T Scanner::GetCurrentValue(std::size_t index, std::size_t size)
-{
-	return Scanner::GetCurrentValue<T>(index, (int*)nullptr, size);
-}
-template<typename T>
-// Gets the current value of an option of a given size
-T Scanner::GetCurrentValue(std::size_t index, int* info)
-{
-	return Scanner::GetCurrentValue<T>(index, sizeof(T), (int*)nullptr);
-}
-template<typename T>
-// Gets the current value of an option of a given size, and returns info about it
-T Scanner::GetCurrentValue(std::size_t index, std::size_t size, int* info)
-{
-	void* ptr = Scanner::GetCurrentValue<void*>(index, size, info);
+	void* ptr = Scanner::_GetCurrentValue(index, size, info, status);
 	// Dereference the pointer and return its value as the designated type
-	return *(T*)ptr;
+	return (T*)ptr;
+}
+template<typename T>
+SANE_Status Scanner::SetCurrentValue(std::size_t index, T value, std::size_t size, int* info)
+{
+	T* ptr = (T*)malloc(size);
+	(*ptr) = value;
+	SANE_Status s = Scanner::SetCurrentValuePointer(index, ptr, size, info);
+	free(ptr);
+	return s;
+}
+
+template<typename T>
+SANE_Status Scanner::SetCurrentValuePointer(std::size_t index, T* value, std::size_t size, int* info)
+{
+	return Scanner::_SetCurrentValue(index, (void*)value, size, info);
 }

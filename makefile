@@ -13,5 +13,6 @@ deploy: clean
 	scp -rp * iggyvolz@192.168.0.19:~/PrintScan
 bin/main: $(shell for file in *.cpp;do echo $$file|sed 's/cpp/o/'|awk '{ print "bin/" $$0 }'; done|xargs echo)
 	$(CXX) -o bin/main $^ $(CXXFLAGS)
+# $(shell echo $@|tail -c +5|sed 's/o$$/cpp/'|xargs cat|grep '#include'|grep '"'|cut -d '"' -f2)
 bin/%.o: %.cpp
 	$(CXX) -c $< -o $@ $(CXXFLAGS)
