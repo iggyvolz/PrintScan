@@ -1,15 +1,16 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <vector>
 #include "Screen.h"
 #include "MenuScreen.h"
 #include "Scanner.h"
-#include <ncurses.h>
-class ScannerSelectionScreen : MenuScreen
+#include <curses.h>
+class ScannerSelectionScreen : public MenuScreen
 {
     public:
-        ScannerSelectionScreen(WINDOW*, std::vector<Scanner>);
+        ScannerSelectionScreen(WINDOW*, std::vector<Scanner*>);
         ~ScannerSelectionScreen();
-        void OnPress();
+        void OnPress() override;
+	private:
+		std::vector<Scanner*> scanners;
 };

@@ -81,6 +81,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MenuScreen.cpp" />
+    <ClCompile Include="SettingsScreen.cpp" />
     <ClCompile Include="Scanner.cpp" />
     <ClCompile Include="ScannerEnvironment.cpp" />
     <ClCompile Include="ScannerSelectionScreen.cpp" />
@@ -88,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MenuScreen.h" />
+    <ClInclude Include="SettingsScreen.h" />
     <ClInclude Include="Scanner.h" />
     <ClInclude Include="ScannerEnvironment.h" />
     <ClInclude Include="ScannerSelectionScreen.h" />

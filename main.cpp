@@ -9,14 +9,11 @@
 #include "ScannerEnvironment.h"
 #include<map>
 using namespace std;
-void go_up();
-void go_down();
-void go_enter();
-void executeOption(char);
 #define DISPLAY_TYPE_MENU 0
 char DisplayType=DISPLAY_TYPE_MENU;
 WINDOW* win;
 Screen* currentScreen;
+char exitNow = 0;
 int nlines=100;
 int ncols=100;
 int displayLeft=5;
@@ -46,7 +43,7 @@ int main(int argc, char *argv[])
 }
 void gameLoop()
 {
-    while(true)
+    while(exitNow==0)
     {
         currentScreen->Display();
     }

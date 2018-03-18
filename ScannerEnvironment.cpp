@@ -9,18 +9,16 @@ using namespace std;
 ScannerEnvironment::ScannerEnvironment()
 {
     int version_code=0;
-    SANE_Status status = sane_init(&version_code, nullptr);
+    sane_init(&version_code, nullptr);
     // Pointer to array of device pointers
     const SANE_Device** devices=nullptr;
-    SANE_Status getDevicesStatus=SANE_STATUS_GOOD;
     sane_get_devices(&devices, true);
-    vector<Scanner> scanners;
+	this->scanners.clear();
     for(;*devices!=0;devices++)
     {
         SANE_Device* device = (SANE_Device*)*devices;
-        scanners.push_back(Scanner(*device));
+        scanners.push_back(new Scanner(*device));
     }
-    this->scanners=scanners;
 }
 ScannerEnvironment::~ScannerEnvironment()
 {

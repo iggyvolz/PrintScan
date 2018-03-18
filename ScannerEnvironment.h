@@ -3,7 +3,7 @@
 class ScannerEnvironment
 {
     public:
-        std::vector<Scanner> scanners;
+        std::vector<Scanner*> scanners;
         ScannerEnvironment();
         ~ScannerEnvironment();
 };
