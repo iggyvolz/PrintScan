@@ -17,6 +17,8 @@ class SettingsScreen:public MenuScreen
 		std::vector<memfunc> pressFunctions;
 		// Map of on-screen options to the scanner option they represent (or nullptr when not a scanner option ex. Start Scan)
 		std::vector<const SANE_Option_Descriptor*> scannerOptions;
+		// Map of on-screen options to the index of the scanner option they represent
+		std::vector<size_t> scannerOptionIndeces;
 		// Run on press of Start Scan
 		void PressStart();
 		// Run on press of Reset Settings

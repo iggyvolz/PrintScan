@@ -69,8 +69,3 @@ void MenuScreen::Display()
             break;
     }
 }
-
-std::size_t MenuScreen::GetCurrentOption()
-{
-	return this->currOption;
-}

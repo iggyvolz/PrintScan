@@ -8,7 +8,7 @@
 #include<cstring>
 using namespace std;
 extern Screen* currentScreen;
-OptionSelectorScreen::OptionSelectorScreen(WINDOW* win, SettingsScreen* settingsScreen, const SANE_Option_Descriptor* descriptor):MenuScreen(win), settingsScreen(settingsScreen), descriptor(descriptor)
+OptionSelectorScreen::OptionSelectorScreen(WINDOW* win, SettingsScreen* settingsScreen, const SANE_Option_Descriptor* descriptor, size_t currOptionIndex):MenuScreen(win), settingsScreen(settingsScreen), descriptor(descriptor), currOptionIndex(currOptionIndex)
 {
 	string suffixes[] = { "","px"," bits","mm"," dpi","%"," microseconds" };
 	string suffix = suffixes[descriptor->unit];
@@ -63,26 +63,26 @@ OptionSelectorScreen::OptionSelectorScreen(WINDOW* win, SettingsScreen* settings
 OptionSelectorScreen::~OptionSelectorScreen()
 {
 }
-
+#include<csignal>
 extern char exitNow;
 void OptionSelectorScreen::OnPress()
 {
-	endwin();
+	char* ptr = this->settingsScreen->scanner->GetCurrentValuePointer<char>(currOptionIndex, descriptor->size);
+	string val = string(ptr);
+	delete ptr;
 	// Set option number
 	switch (descriptor->constraint_type)
 	{
 		case SANE_CONSTRAINT_WORD_LIST:
 			{
-				int info;
-				SANE_Status status = this->settingsScreen->scanner->SetCurrentValue(this->settingsScreen->GetCurrentOption(), descriptor->constraint.word_list[this->currOption + 1], sizeof(SANE_Word), &info); // First index of word_list is length
-				cout << "Info: " << info << ", status: " << status << endl;
+				SANE_Word thing = descriptor->constraint.word_list[this->currOption + 1];
+				this->settingsScreen->scanner->SetCurrentValue(currOptionIndex, thing); // First index of word_list is length
 			}
 			break;
 		case SANE_CONSTRAINT_STRING_LIST:
 			{
-				int info;
-				SANE_Status status = this->settingsScreen->scanner->SetCurrentValuePointer(this->settingsScreen->GetCurrentOption(), descriptor->constraint.string_list[this->currOption], strlen(descriptor->constraint.string_list[this->currOption])+1, &info);
-				cout << "Info: " << info << ", status: " << status << endl;
+				SANE_String_Const thing = descriptor->constraint.string_list[this->currOption];
+				this->settingsScreen->scanner->SetCurrentValuePointer(currOptionIndex, thing);
 			}
 			break;
 		default:
@@ -91,10 +91,8 @@ void OptionSelectorScreen::OnPress()
 			std::exit(1);
 			break;
 	}
-	cout << "Current value: " << this->settingsScreen->scanner->GetCurrentValue<unsigned>(this->settingsScreen->GetCurrentOption()) << endl; // TODO
-	exitNow = 1;
 	// Revert to settings screen
-	//currentScreen = this->settingsScreen;
-	//this->settingsScreen->UpdateOptions();
+	currentScreen = this->settingsScreen;
+	this->settingsScreen->UpdateOptions();
 	delete this;
 }

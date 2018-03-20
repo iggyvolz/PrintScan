@@ -8,11 +8,12 @@ class OptionSelectorScreen :
 	public MenuScreen
 {
 	public:
-		OptionSelectorScreen(WINDOW*, SettingsScreen*, const SANE_Option_Descriptor*);
+		OptionSelectorScreen(WINDOW* win, SettingsScreen* settingsScreen, const SANE_Option_Descriptor* descriptor, size_t currOptionIndex);
 		~OptionSelectorScreen();
 		void OnPress() override;
 	private:
 		SettingsScreen* settingsScreen;
 		const SANE_Option_Descriptor* descriptor;
+		size_t currOptionIndex;
 };
 

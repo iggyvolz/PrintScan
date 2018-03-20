@@ -10,7 +10,6 @@ class MenuScreen : public Screen
 		MenuScreen(WINDOW* win);
         virtual ~MenuScreen();
         void Display() override;
-		std::size_t GetCurrentOption();
     protected:
 		// Title to display on the menu screen
         std::string title;

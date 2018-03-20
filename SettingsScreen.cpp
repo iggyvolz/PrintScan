@@ -90,7 +90,7 @@ void SettingsScreen::PressReset()
 
 void SettingsScreen::OptionsSelector()
 {
-	currentScreen = new OptionSelectorScreen(this->win, this, this->scannerOptions[this->currOption]);
+	currentScreen = new OptionSelectorScreen(this->win, this, this->scannerOptions[this->currOption], this->scannerOptionIndeces[this->currOption]);
 }
 
 void SettingsScreen::RangeSelector()
@@ -115,11 +115,13 @@ void SettingsScreen::UpdateOptions()
 	this->options.push_back("Start Scan");
 	this->pressFunctions.push_back(&SettingsScreen::PressStart);
 	this->scannerOptions.push_back(nullptr);
+	this->scannerOptionIndeces.push_back(0); // Even though this one can't be selected, it still gets an entry
 	this->skipOption.push_back(false);
 	// Add "Reset Settings" option
 	this->options.push_back("Reset Settings");
 	this->pressFunctions.push_back(&SettingsScreen::PressReset);
 	this->scannerOptions.push_back(nullptr);
+	this->scannerOptionIndeces.push_back(0); // Even though this one can't be selected, it still gets an entry
 	this->skipOption.push_back(false);
 	// Create temporary array to map constraint types and data types to selectors
 	// Indexed by (type<<2)|constraint - unique because constraint is two bits and type is three
@@ -138,7 +140,6 @@ void SettingsScreen::UpdateOptions()
 	selector(SANE_TYPE_STRING, SANE_CONSTRAINT_NONE) = &SettingsScreen::TextEntry;
 	selector(SANE_TYPE_STRING, SANE_CONSTRAINT_STRING_LIST) = &SettingsScreen::OptionsSelector;
 	selector(SANE_TYPE_BUTTON, SANE_CONSTRAINT_NONE) = &SettingsScreen::ButtonPress;
-
 	// Add options from scanner
 	for (size_t i = 0;i != this->scanner->Options.size();i++)
 	{
@@ -149,6 +150,7 @@ void SettingsScreen::UpdateOptions()
 			this->options.push_back(name);
 			this->pressFunctions.push_back(nullptr);
 			this->scannerOptions.push_back(option);
+			this->scannerOptionIndeces.push_back(0); // Even though this one can't be selected, it still gets an entry
 			// Don't allow user to hover this entry
 			this->skipOption.push_back(true);
 			continue;
@@ -161,13 +163,14 @@ void SettingsScreen::UpdateOptions()
 		string name = " " + (string)(option->name) + " ";
 		// Set name
 		this->scannerOptions.push_back(option);
+		// Set index
+		this->scannerOptionIndeces.push_back(i);
 		// Set as not skipped
 		this->skipOption.push_back(false);
 		// Set selector
 		this->pressFunctions.push_back(selector(option->type, option->constraint_type));
 
 		// Display current value to user
-		endwin();
 		switch (option->type)
 		{
 		case SANE_TYPE_BOOL:
@@ -191,9 +194,6 @@ void SettingsScreen::UpdateOptions()
 			char* _value = scanner->GetCurrentValuePointer<char>(i, option->size);
 			string value = string(_value);
 			delete _value;
-			cout << "Got the value" << endl;
-			//cout << (void*)value << endl;
-			//cout <<  *value << endl;
 			name += " (" + string(value) + ")";
 		}
 		break;
