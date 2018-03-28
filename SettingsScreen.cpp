@@ -1,4 +1,5 @@
 #include "OptionSelectorScreen.h"
+#include "RangeSelectorScreen.h"
 #include "SettingsScreen.h"
 #include "Scanner.h"
 #include<string>
@@ -41,7 +42,7 @@ void SettingsScreen::PressStart()
 	cout << "Start Scan pressed" << endl;
 
 	// Display all settings
-	/*
+	
 	for (const SANE_Option_Descriptor* option : this->scanner->Options)
 	{
 		cout << "Setting " << option->name << " has type " << option->type << " and unit " << option->unit;
@@ -76,7 +77,7 @@ void SettingsScreen::PressStart()
 			cout << endl;
 			break;
 		}
-	} */
+	} 
 	exitNow = 1;
 }
 
@@ -95,7 +96,7 @@ void SettingsScreen::OptionsSelector()
 
 void SettingsScreen::RangeSelector()
 {
-
+	currentScreen = new RangeSelectorScreen(this->win, this, this->scannerOptions[this->currOption], this->scannerOptionIndeces[this->currOption]);
 }
 
 void SettingsScreen::TextEntry()
@@ -105,7 +106,19 @@ void SettingsScreen::TextEntry()
 
 void SettingsScreen::ButtonPress()
 {
-
+	// The corresponding button has been pressed
+	const SANE_Option_Descriptor* descriptor = this->scannerOptions[this->currOption];
+	size_t currOption = this->scannerOptionIndeces[this->currOption];
+	SANE_Bool value = 0;
+	if (descriptor->type == SANE_TYPE_BOOL)
+	{
+		// If we're setting a bool,  get the actual value
+		value = this->scanner->GetCurrentValue<SANE_Bool>(currOption);
+		// Invert value
+		value = 1 - value;
+	}
+	this->scanner->SetCurrentValue<SANE_Bool>(this->scannerOptionIndeces[this->currOption], value, descriptor->size);
+	this->UpdateOptions();
 }
 
 void SettingsScreen::UpdateOptions()

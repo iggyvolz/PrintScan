@@ -19,7 +19,21 @@ int ncols=100;
 int displayLeft=5;
 int displayTop=5;
 void gameLoop();
+#include<png++/png.hpp>
 int main(int argc, char *argv[])
+{
+	png::image< png::rgb_pixel > image(128, 128);
+	for (png::uint_32 y = 0; y < image.get_height(); ++y)
+	{
+		for (png::uint_32 x = 0; x < image.get_width(); ++x)
+		{
+			image[y][x] = png::rgb_pixel(0,0,0);
+			// non-checking equivalent of image.set_pixel(x, y, ...);
+		}
+	}
+	image.write("rgb.png");
+}
+int _main(int argc, char *argv[])
 {
     ScannerEnvironment* env = new ScannerEnvironment();
     // Initialize ncurses
@@ -40,6 +54,7 @@ int main(int argc, char *argv[])
     delete currentScreen;
     delete env;
     endwin();
+	return 0;
 }
 void gameLoop()
 {
