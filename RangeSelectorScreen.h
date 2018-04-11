@@ -9,6 +9,7 @@ class RangeSelectorScreen :
 {
 public:
 	RangeSelectorScreen(WINDOW* win, SettingsScreen* settingsScreen, const SANE_Option_Descriptor* descriptor, size_t currOptionIndex);
+	RangeSelectorScreen(WINDOW* win, int min, int max, int step, SANE_String_Const name, size_t currOptionIndex);	
 	~RangeSelectorScreen();
 	void Display() override;
 private:

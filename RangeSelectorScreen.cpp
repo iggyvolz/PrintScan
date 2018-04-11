@@ -2,7 +2,11 @@
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>
 #include<iostream>
+#include<cstring>
 using namespace std;
+RangeSelectorScreen::RangeSelectorScreen(WINDOW* win, int min, int max, int step, SANE_String_Const name, size_t currOptionIndex):Screen(win),name(name),min(min),max(max),curr(min),step(step)
+{
+}
 RangeSelectorScreen::RangeSelectorScreen(WINDOW* win, SettingsScreen* settingsScreen, const SANE_Option_Descriptor* descriptor, size_t currOptionIndex):Screen(win)
 {
 	if (descriptor->constraint_type == SANE_Constraint_Type::SANE_CONSTRAINT_RANGE)
@@ -27,61 +31,43 @@ RangeSelectorScreen::~RangeSelectorScreen()
 }
 void RangeSelectorScreen::Display()
 {
-	cout << __LINE__ << endl;
 	// Clear screen
-	cout << __LINE__ << endl;
 	wclear(win);
-	cout << __LINE__ << endl;
 	// Draw title
-	cout << __LINE__ << endl;
 	mvwaddstr(win, 0, 0, this->name);
-	cout << __LINE__ << endl;
 	// Draw on window
-	cout << __LINE__ << endl;
 	// Subtract 2 for the borders
-	cout << __LINE__ << endl;
 	short width = this->win->_maxx - 2;
-	cout << __LINE__ << endl;
 	mvwaddch(win, 1, 0, '|');
-	cout << __LINE__ << endl;
 	int numCharsToPrint = this->curr - this->min;
-	cout << __LINE__ << endl;
 	numCharsToPrint *= width;
-	cout << __LINE__ << endl;
-	numCharsToPrint /= this->max;
-	cout << __LINE__ << endl;
-	for (;numCharsToPrint >= 0;numCharsToPrint--)
+	numCharsToPrint /= this->max-this->min;
+	for (int i=0;i<numCharsToPrint;i++)
 	{
-		cout << __LINE__ << endl;
-		waddch(win, '|');
+		waddch(win, '*');
 	}
-	cout << __LINE__ << endl;
 	mvwaddch(win, 1, this->win->_maxx - 1, '|');
-	cout << __LINE__ << endl;
+	char* text = new char[6]; // Print at most 5 characters 
+	snprintf(text,6,"%d",this->curr);
+	int belowPrintingX=numCharsToPrint-(strlen(text)-1)/2;
+	if(belowPrintingX<0) belowPrintingX=0;
+	if(belowPrintingX>=this->win->_maxx-(int)strlen(text)) belowPrintingX=this->win->_maxx-(int)strlen(text);
+	mvwaddstr(win,2,belowPrintingX,text);
+	delete text;
 	wrefresh(win);
-	cout << __LINE__ << endl;
 	int pressed = wgetch(this->win);
-	cout << __LINE__ << endl;
 	switch (pressed)
 	{
 	case KEY_UP:
-		cout << __LINE__ << endl;
 		this->curr += this->step;
-		cout << __LINE__ << endl;
 		if (this->curr > this->max) this->curr = this->max;
-		cout << __LINE__ << endl;
 		break;
 	case KEY_DOWN:
-		cout << __LINE__ << endl;
 		this->curr -= this->step;
-		cout << __LINE__ << endl;
 		if (this->curr < this->min) this->curr = this->min;
-		cout << __LINE__ << endl;
 		break;
 	case KEY_ENTER:
 	case 10:
-		cout << __LINE__ << endl;
 		break;
 	}
-	cout << __LINE__ << endl;
 }
