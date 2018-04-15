@@ -40,12 +40,16 @@ void SettingsScreen::PressStart()
 {
 	endwin();
 	cout << "Start Scan pressed" << endl;
-
+	// Initiating scan
+	ScannedImage* image = scanner->StartScan();
+	while(!image->GetNextFrame());
+	image->OutputToFile("out.png");
 	// Display all settings
 	
-	for (const SANE_Option_Descriptor* option : this->scanner->Options)
+	/*for(size_t i=0;i<this->scanner->Options.size();i++)
 	{
-		cout << "Setting " << option->name << " has type " << option->type << " and unit " << option->unit;
+		const SANE_Option_Descriptor* option = this->scanner->Options[i];
+		cout << "Setting " << i << ", " << option->name << ", has type " << option->type << " and unit " << option->unit;
 		switch (option->constraint_type)
 		{
 		case SANE_CONSTRAINT_NONE:
@@ -78,7 +82,7 @@ void SettingsScreen::PressStart()
 			break;
 		}
 	} 
-	exitNow = 1;
+	exitNow = 1;*/
 }
 
 void SettingsScreen::PressReset()

@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -Wall -g -lncurses -lsane -lpng16 -std=c++17
+CXXFLAGS = -Wall -g -lncurses -lsane -lpng16 -llua -std=c++17
 all: init bin/main
 dbg: init bin/main
 	gdb bin/main

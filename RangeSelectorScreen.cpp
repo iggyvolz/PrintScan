@@ -1,13 +1,12 @@
 #include "RangeSelectorScreen.h"
-#define __STDC_LIMIT_MACROS
-#include <stdint.h>
 #include<iostream>
 #include<cstring>
+extern Screen* currentScreen;
 using namespace std;
 RangeSelectorScreen::RangeSelectorScreen(WINDOW* win, int min, int max, int step, SANE_String_Const name, size_t currOptionIndex):Screen(win),name(name),min(min),max(max),curr(min),step(step)
 {
 }
-RangeSelectorScreen::RangeSelectorScreen(WINDOW* win, SettingsScreen* settingsScreen, const SANE_Option_Descriptor* descriptor, size_t currOptionIndex):Screen(win)
+RangeSelectorScreen::RangeSelectorScreen(WINDOW* win, SettingsScreen* settingsScreen, const SANE_Option_Descriptor* descriptor, size_t currOptionIndex):Screen(win), settingsScreen(settingsScreen)
 {
 	if (descriptor->constraint_type == SANE_Constraint_Type::SANE_CONSTRAINT_RANGE)
 	{
@@ -15,6 +14,8 @@ RangeSelectorScreen::RangeSelectorScreen(WINDOW* win, SettingsScreen* settingsSc
 		this->max = descriptor->constraint.range->max;
 		this->curr = this->min;
 		this->step = descriptor->constraint.range->quant;
+		if(this->step == 0) this->step=(this->max-this->min)/20;
+		if(this->step==0) this->step=1;
 	}
 	else
 	{
@@ -68,6 +69,12 @@ void RangeSelectorScreen::Display()
 		break;
 	case KEY_ENTER:
 	case 10:
+		// Set option number
+		this->settingsScreen->scanner->SetCurrentValue(currOptionIndex, curr);
+		// Revert to settings screen
+		currentScreen = this->settingsScreen;
+		this->settingsScreen->UpdateOptions();
+		delete this;
 		break;
 	}
 }
