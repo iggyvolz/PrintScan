@@ -1,10 +1,14 @@
 #include "Scanner.h"
 #include <sane/sane.h>
 #include <vector>
+#include "ScannedImage.h"
 using namespace std;
 Scanner::~Scanner()
 {
-
+	if(scannedImage != nullptr)
+	{
+		delete scannedImage;
+	}
 }
 Scanner::Scanner(SANE_Device device):device(device)
 {
@@ -19,6 +23,10 @@ SANE_Status Scanner::Open()
 const string Scanner::GetName()
 {
     return this->device.model;
+}
+const string Scanner::GetIdentifier()
+{
+    return this->device.name;
 }
 void Scanner::GetOptions()
 {
@@ -53,4 +61,11 @@ void* Scanner::_GetCurrentValue(std::size_t index, std::size_t size, int* info, 
 SANE_Status Scanner::_SetCurrentValue(std::size_t index, void* value, std::size_t size, int* info)
 {
 	return sane_control_option(this->handle, index, SANE_ACTION_SET_VALUE, value, info);
+}
+#include <signal.h>
+ScannedImage* Scanner::StartScan()
+{
+	ScannedImage* ptr=new ScannedImage(this);
+	this->scannedImage=ptr;
+	return ptr;
 }

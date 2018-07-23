@@ -1,4 +1,5 @@
 #include "OptionSelectorScreen.h"
+#include "RangeSelectorScreen.h"
 #include "SettingsScreen.h"
 #include "Scanner.h"
 #include<string>
@@ -6,6 +7,8 @@
 #include<cstring>
 #include <functional>
 #include <curses.h>
+#include <cstdio>
+#include<string>
 using namespace std;
 extern Screen* currentScreen;
 SettingsScreen::SettingsScreen(WINDOW* win, Scanner* scanner):MenuScreen(win, string("Settings")), scanner(scanner)
@@ -37,47 +40,12 @@ void SettingsScreen::OnPress()
 extern char exitNow;
 void SettingsScreen::PressStart()
 {
-	endwin();
-	cout << "Start Scan pressed" << endl;
-
-	// Display all settings
-	/*
-	for (const SANE_Option_Descriptor* option : this->scanner->Options)
-	{
-		cout << "Setting " << option->name << " has type " << option->type << " and unit " << option->unit;
-		switch (option->constraint_type)
-		{
-		case SANE_CONSTRAINT_NONE:
-			cout << " and no constraints." << endl;
-			break;
-		case SANE_CONSTRAINT_RANGE:
-			cout << " and a range constraint from " << option->constraint.range->min << " to " << option->constraint.range->max << " with quantization " << option->constraint.range->quant << endl;
-			break;
-		case SANE_CONSTRAINT_WORD_LIST:
-		{
-			const int * list = option->constraint.word_list;
-			int numWords = *list;
-			cout << " and " << numWords << " valid words: ";
-
-			for (int i = 0;i < numWords;i++)
-			{
-				list++;
-				cout << *list << ", ";
-			}
-			cout << endl;
-		}
-		break;
-		case SANE_CONSTRAINT_STRING_LIST:
-			cout << " and valid strings: ";
-			for (const SANE_String_Const * list = option->constraint.string_list;(*list) != NULL;list++)
-			{
-				cout << *list << ", ";
-			}
-			cout << endl;
-			break;
-		}
-	} */
-	exitNow = 1;
+	// Initiating scan
+	ScannedImage* image = scanner->StartScan();
+	std::string filename=std::to_string(time(nullptr))+".png";
+	std::string file="/usr/local/openresty/nginx/html/"+filename;
+	image->ReadToFile(file.c_str());
+	system(("echo http://192.168.1.240/"+filename+"|dss --connect iggyvolz").c_str());
 }
 
 void SettingsScreen::PressReset()
@@ -95,7 +63,7 @@ void SettingsScreen::OptionsSelector()
 
 void SettingsScreen::RangeSelector()
 {
-
+	currentScreen = new RangeSelectorScreen(this->win, this, this->scannerOptions[this->currOption], this->scannerOptionIndeces[this->currOption]);
 }
 
 void SettingsScreen::TextEntry()
@@ -105,7 +73,19 @@ void SettingsScreen::TextEntry()
 
 void SettingsScreen::ButtonPress()
 {
-
+	// The corresponding button has been pressed
+	const SANE_Option_Descriptor* descriptor = this->scannerOptions[this->currOption];
+	size_t currOption = this->scannerOptionIndeces[this->currOption];
+	SANE_Bool value = 0;
+	if (descriptor->type == SANE_TYPE_BOOL)
+	{
+		// If we're setting a bool,  get the actual value
+		value = this->scanner->GetCurrentValue<SANE_Bool>(currOption);
+		// Invert value
+		value = 1 - value;
+	}
+	this->scanner->SetCurrentValue<SANE_Bool>(this->scannerOptionIndeces[this->currOption], value, descriptor->size);
+	this->UpdateOptions();
 }
 
 void SettingsScreen::UpdateOptions()

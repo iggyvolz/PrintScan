@@ -1,6 +1,7 @@
 #pragma once
 #include<vector>
 #include <sane/sane.h>
+#include "ScannedImage.h"
 #include<string>
 class Scanner
 {
@@ -8,7 +9,9 @@ class Scanner
         virtual ~Scanner();
         SANE_Status Open();
         const std::string GetName();
+		const std::string GetIdentifier();
         friend class ScannerEnvironment;
+		friend class ScannedImage;
 		std::vector<const SANE_Option_Descriptor*> Options;
 		void GetOptions();
 
@@ -27,12 +30,15 @@ class Scanner
 		template<typename T>
 		// Sets the current value of an option
 		SANE_Status SetCurrentValuePointer(std::size_t index, T* value, std::size_t size = sizeof(T), int* info = nullptr);
+
+		ScannedImage* StartScan();
     private:
         Scanner(SANE_Device);
         SANE_Handle handle;
         SANE_Device device;
 		void* _GetCurrentValue(std::size_t index, std::size_t size, int* info, SANE_Status* status);
 		SANE_Status _SetCurrentValue(std::size_t index, void* value, std::size_t size, int* info);
+		ScannedImage* scannedImage=nullptr;
 };
 template<typename T>
 T Scanner::GetCurrentValue(std::size_t index, std::size_t size, int* info, SANE_Status* status)
